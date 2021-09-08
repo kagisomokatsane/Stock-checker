@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stock UP!</title>
     <script src="app.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <link
       rel="stylesheet"
@@ -20,13 +21,13 @@
     <div class="ui container">
       
       <h1>STOCKS AND STUFF</h1>
-      
-      <h2>THIS IS SOME NICE CATCHPHRASE THAT IS THIS LONG</h2>
+
+      <h2> YOUR DAILY DOSE OF THE MARKET TIDES</h2>
       <hr />
       <div class="btns">
-        <button class="ui red button" id="googleBtn">HIDE GOOGLE STOCKS</button>
-        <button class="ui blue button" id="appleBtn">HIDE APPLE STOCKS</button>
-        <button class="ui green button" id="teslaBtn">HIDE TESLA STOCKS</button>
+        <button class="ui red button" id="googleBtn">TOGGLE GOOGLE STOCKS</button>
+        <button class="ui blue button" id="appleBtn">TOGGLE APPLE STOCKS</button>
+        <button class="ui green button" id="teslaBtn">TOGGLE TESLA STOCKS</button>
       </div>
 
 
@@ -39,53 +40,74 @@
       <div id="teslaDiv">
         <canvas id="teslaChart"></canvas>
       </div>
+        
     </div>
 
     <script>
+      const API_KEY = "4KD50A3YMN0QXYH7";
+      const getApiUrlForStockCode = (stockCode) => `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockCode}&outputsize=compact&apikey=${API_KEY}`;
+
+      async function getStockDataForStockCode(stockCode) {
+        const apiUrl = getApiUrlForStockCode(stockCode);
+        return fetch(apiUrl)
+          .then(async function (response) {
+            const data = await response.json();
+
+            console.log('TEST DATA', data);
+
+            const formattedData = {
+              x: [],
+              y: []
+            };
+
+
+            for (let key in data["Time Series (Daily)"]) {
+              formattedData.x.push(key);
+              formattedData.y.push(data["Time Series (Daily)"][key]["1. open"]);
+            }
+
+            console.log('TEST FORMATTED DATA', formattedData);
+
+            formattedData.x = formattedData.x.reverse();
+            formattedData.y = formattedData.y.reverse();
+
+            console.log('TEST FORMATTED DATA AFTER REVERSE', formattedData);
+            
+            return formattedData;
+          })
+      }
+
       /*---------------------------------------------------------GOOGLE------------------------------------------------*/
       /*---------------------------------------------------------GOOGLE------------------------------------------------*/
       let googleBtn = document.getElementById("googleBtn");
-      let div1 = document.getElementById("googleDiv");
+      let googleChartContainer = document.getElementById("googleDiv");
       googleBtn.addEventListener("click", () => {
-        if (div1.style.display === "none") {
-          div1.style.display = "block";
+        if (googleChartContainer.style.display === "none") {
+          googleChartContainer.style.display = "block";
         } else {
-          div1.style.display = "none";
+          googleChartContainer.style.display = "none";
         }
       });
 
-      let stockx = [];
-      let stocky = [];
-      const API_KEY = "4KD50A3YMN0QXYH7";
-      const API_URL =
-        "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=GOOGL&outputsize=compact&apikey=API_KEY";
-      async function getAPI() {
-        fetch(API_URL)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            for (let key in data["Time Series (Daily)"]) {
-              stockx.push(key);
-              stocky.push(data["Time Series (Daily)"][key]["1. open"]);
-            }
-          });
-      }
+
 
       async function gChart() {
-        await fetch(API_URL);
+        const formattedData = await getStockDataForStockCode('GOOGL');
 
         let googleChart = document
           .getElementById("googleChart")
           .getContext("2d");
+
+        console.log('GOOGLE After Reverse', formattedData)
+
         let myChart = new Chart(googleChart, {
           type: "line",
           data: {
-            labels: stockx.reverse(),
+            labels: formattedData.x,
             datasets: [
               {
                 label: "GOOGLE STOCK",
-                data: stocky.reverse(),
+                data: formattedData.y,
                 borderColor: "red",
               },
             ],
@@ -97,43 +119,32 @@
       /* ---------------------------------------------------APPLE------------------------------------------------*/
       /* ---------------------------------------------------APPLE------------------------------------------------*/
       let appleBtn = document.getElementById("appleBtn");
-      let div2 = document.getElementById("appleDiv");
+      let appleChartContainer = document.getElementById("appleDiv");
       appleBtn.addEventListener("click", () => {
-        if (div2.style.display === "none") {
-          div2.style.display = "block";
+        if (appleChartContainer.style.display === "none") {
+          appleChartContainer.style.display = "block";
         } else {
-          div2.style.display = "none";
+          appleChartContainer.style.display = "none";
         }
       });
-      let stock1x = [];
-      let stock1y = [];
 
-      const aAPI_URL =
-        "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AAPL&outputsize=compact&apikey=API_KEY";
-      async function getAppleAPI() {
-        fetch(aAPI_URL)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            for (let key in data["Time Series (Daily)"]) {
-              stock1x.push(key);
-              stock1y.push(data["Time Series (Daily)"][key]["1. open"]);
-            }
-          });
-      }
       async function aChart() {
-        await fetch(aAPI_URL);
+        const formattedData = await getStockDataForStockCode('AAPL');
 
-        let appleChart = document.getElementById("appleChart").getContext("2d");
-        let myChart2 = new Chart(appleChart, {
+        let googleChart = document
+          .getElementById("appleChart")
+          .getContext("2d");
+
+        console.log('APPLE After Reverse', formattedData)
+
+        let myChart = new Chart(appleChart, {
           type: "line",
           data: {
-            labels: stock1x.reverse(),
+            labels: formattedData.x,
             datasets: [
               {
                 label: "APPLE STOCK",
-                data: stock1y.reverse(),
+                data: formattedData.y,
                 borderColor: "blue",
               },
             ],
@@ -146,43 +157,32 @@
       /*---------------------------------------------------------TESLA-----------------------------------------------*/
       /*---------------------------------------------------------TESLA-----------------------------------------------*/
       let teslaBtn = document.getElementById("teslaBtn");
-      let div3 = document.getElementById("teslaDiv");
+      let teslaChartContainer = document.getElementById("teslaDiv");
       teslaBtn.addEventListener("click", () => {
-        if (div3.style.display === "none") {
-          div3.style.display = "block";
+        if (teslaChartContainer.style.display === "none") {
+          teslaChartContainer.style.display = "block";
         } else {
-          div3.style.display = "none";
+          teslaChartContainer.style.display = "none";
         }
       });
-      let stock2x = [];
-      let stock2y = [];
 
-      const tAPI_URL =
-        "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=TSLA&outputsize=compact&apikey=API_KEY";
-      async function getTeslaAPI() {
-        fetch(tAPI_URL)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            for (let key in data["Time Series (Daily)"]) {
-              stock2x.push(key);
-              stock2y.push(data["Time Series (Daily)"][key]["1. open"]);
-            }
-          });
-      }
       async function tChart() {
-        await fetch(tAPI_URL);
+        const formattedData = await getStockDataForStockCode('TSLA');
 
-        let teslaChart = document.getElementById("teslaChart").getContext("2d");
+        let googleChart = document
+          .getElementById("teslaChart")
+          .getContext("2d");
+
+        console.log('TESLA After Reverse', formattedData)
+
         let myChart = new Chart(teslaChart, {
           type: "line",
           data: {
-            labels: stock2x.reverse(),
+            labels: formattedData.x,
             datasets: [
               {
                 label: "TESLA STOCK",
-                data: stock2y.reverse(),
+                data: formattedData.y,
                 borderColor: "green",
               },
             ],
@@ -191,12 +191,14 @@
           options: {},
         });
       }
-      getAPI();
-      gChart();
-      aChart();
-      getAppleAPI();
-      getTeslaAPI();
-      tChart();
+
+      function start() {
+        gChart();
+        aChart();
+        tChart();
+      }
+
+      start();
     </script>
   </body>
 </html>
