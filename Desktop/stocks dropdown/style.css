@@ -1,0 +1,30 @@
+h1,
+h2,
+p {
+    text-align: center;
+}
+
+#display,
+#display1,
+#display2,
+#display3,
+#display4 {
+    text-indent: 40%;
+
+    position: relative;
+
+    padding: 1rem;
+
+}
+
+#dropdown {
+    background-color: rgb(174, 230, 230);
+}
+
+body {
+    background-color: azure;
+}
+
+#a,#b,#c,#d,#e,#f{
+    text-indent: 100%;
+}
