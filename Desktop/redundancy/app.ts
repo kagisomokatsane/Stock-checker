@@ -1,5 +1,3 @@
-//currencyIn: HTMLSelectElement;
-
 class ProjectInput {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
@@ -49,15 +47,13 @@ class ProjectInput {
   private attach() {
     this.hostElement.insertAdjacentElement("afterbegin", this.element);
   }
-  
+
   private conv(event: Event) {
     const select1 = document.getElementById("currencyIn") as HTMLSelectElement;
     const from = select1.value;
     const select2 = document.getElementById("currencyOut") as HTMLSelectElement;
     const to = select2.value;
     const rateEl = document.getElementById("rate");
-
-    
 
     /*const app=document.getElementById("app");
     const p=document.createElement('p');

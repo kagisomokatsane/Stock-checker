@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stock UP!</title>
     <script src="app.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <link
       rel="stylesheet"
@@ -17,22 +21,80 @@
   </head>
 
   <body>
-   
     <div class="ui container">
-      
-      <h1>STOCKS AND STUFF</h1>
+      <!-- <h1>STOCKS AND STUFF</h1> -->
 
-      <h2> YOUR DAILY DOSE OF THE MARKET TIDES</h2>
+      <svg viewbox="0 0 100 20">
+        <defs>
+          <linearGradient id="gradient">
+            <stop color="#000" />
+          </linearGradient>
+          <pattern
+            id="wave"
+            x="0"
+            y="-0.5"
+            width="100%"
+            height="100%"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              id="wavePath"
+              d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z"
+              mask="url(#mask)"
+              fill="url(#gradient)"
+            >
+              <animateTransform
+                attributeName="transform"
+                begin="0s"
+                dur="1.5s"
+                type="translate"
+                from="0,0"
+                to="40,0"
+                repeatCount="indefinite"
+              />
+            </path>
+          </pattern>
+        </defs>
+        <text
+          text-anchor="middle"
+          x="50"
+          y="15"
+          font-size="17"
+          fill="white"
+          fill-opacity="0.1"
+        >
+          stocks
+        </text>
+        <text
+          text-anchor="middle"
+          x="50"
+          y="15"
+          font-size="17"
+          fill="url(#wave)"
+          fill-opacity="1"
+        >
+          stocks
+        </text>
+      </svg>
+      <h2>YOUR DAILY DOSE OF THE MARKET TIDES</h2>
       <hr />
       <div class="btns">
-        <button class="ui red button" id="googleBtn">TOGGLE GOOGLE STOCKS</button>
-        <button class="ui blue button" id="appleBtn">TOGGLE APPLE STOCKS</button>
-        <button class="ui green button" id="teslaBtn">TOGGLE TESLA STOCKS</button>
+        <button class="ui red button" id="googleBtn">
+          TOGGLE GOOGLE STOCKS
+        </button>
+        <button class="ui blue button" id="appleBtn">
+          TOGGLE APPLE STOCKS
+        </button>
+        <button class="ui green button" id="teslaBtn">
+          TOGGLE TESLA STOCKS
+        </button>
+        <button class="ui purple button" id="microBtn">
+          TOGGLE MICROSOFT STOCKS
+        </button>
       </div>
 
-
       <div id="googleDiv">
-        <canvas id="googleChart" ></canvas>
+        <canvas id="googleChart"></canvas>
       </div>
       <div id="appleDiv">
         <canvas id="appleChart"></canvas>
@@ -40,165 +102,198 @@
       <div id="teslaDiv">
         <canvas id="teslaChart"></canvas>
       </div>
-        
+      <div id="microsoftDiv">
+        <canvas id="microChart"></canvas>
+      </div>
     </div>
 
     <script>
-      const API_KEY = "4KD50A3YMN0QXYH7";
-      const getApiUrlForStockCode = (stockCode) => `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockCode}&outputsize=compact&apikey=${API_KEY}`;
+      // const API_KEY = "4KD50A3YMN0QXYH7";
+      // const getApiUrlForStockCode = (stockCode) =>
+      //   `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockCode}&outputsize=compact&apikey=${API_KEY}`;
 
-      async function getStockDataForStockCode(stockCode) {
-        const apiUrl = getApiUrlForStockCode(stockCode);
-        return fetch(apiUrl)
-          .then(async function (response) {
-            const data = await response.json();
+      // async function getStockDataForStockCode(stockCode) {
+      //   const apiUrl = getApiUrlForStockCode(stockCode);
+      //   return fetch(apiUrl).then(async function (response) {
+      //     const data = await response.json();
 
-            console.log('TEST DATA', data);
+      //     console.log("TEST DATA", data);
 
-            const formattedData = {
-              x: [],
-              y: []
-            };
+      //     const formattedData = {
+      //       x: [],
+      //       y: [],
+      //     };
 
+      //     for (let key in data["Time Series (Daily)"]) {
+      //       formattedData.x.push(key);
+      //       formattedData.y.push(data["Time Series (Daily)"][key]["1. open"]);
+      //     }
 
-            for (let key in data["Time Series (Daily)"]) {
-              formattedData.x.push(key);
-              formattedData.y.push(data["Time Series (Daily)"][key]["1. open"]);
-            }
+      //     console.log("TEST FORMATTED DATA", formattedData);
 
-            console.log('TEST FORMATTED DATA', formattedData);
+      //     formattedData.x = formattedData.x.reverse();
+      //     formattedData.y = formattedData.y.reverse();
 
-            formattedData.x = formattedData.x.reverse();
-            formattedData.y = formattedData.y.reverse();
+      //     console.log("TEST FORMATTED DATA AFTER REVERSE", formattedData);
 
-            console.log('TEST FORMATTED DATA AFTER REVERSE', formattedData);
-            
-            return formattedData;
-          })
-      }
+      //     return formattedData;
+      //   });
+      // }
 
-      /*---------------------------------------------------------GOOGLE------------------------------------------------*/
-      /*---------------------------------------------------------GOOGLE------------------------------------------------*/
-      let googleBtn = document.getElementById("googleBtn");
-      let googleChartContainer = document.getElementById("googleDiv");
-      googleBtn.addEventListener("click", () => {
-        if (googleChartContainer.style.display === "none") {
-          googleChartContainer.style.display = "block";
-        } else {
-          googleChartContainer.style.display = "none";
-        }
-      });
+      // /*---------------------------------------------------------GOOGLE------------------------------------------------*/
+      // /*---------------------------------------------------------GOOGLE------------------------------------------------*/
+      // let googleBtn = document.getElementById("googleBtn");
+      // let googleChartContainer = document.getElementById("googleDiv");
+      // googleBtn.addEventListener("click", () => {
+      //   if (googleChartContainer.style.display === "none") {
+      //     googleChartContainer.style.display = "block";
+      //   } else {
+      //     googleChartContainer.style.display = "none";
+      //   }
+      // });
 
+      // async function gChart() {
+      //   const formattedData = await getStockDataForStockCode("GOOGL");
 
+      //   let googleChart = document
+      //     .getElementById("googleChart")
+      //     .getContext("2d");
 
-      async function gChart() {
-        const formattedData = await getStockDataForStockCode('GOOGL');
+      //   console.log("GOOGLE After Reverse", formattedData);
 
-        let googleChart = document
-          .getElementById("googleChart")
-          .getContext("2d");
+      //   let myChart = new Chart(googleChart, {
+      //     type: "line",
+      //     data: {
+      //       labels: formattedData.x,
+      //       datasets: [
+      //         {
+      //           label: "GOOGLE STOCK",
+      //           data: formattedData.y,
+      //           borderColor: "red",
+      //         },
+      //       ],
+      //     },
 
-        console.log('GOOGLE After Reverse', formattedData)
+      //     options: {},
+      //   });
+      // }
+      // /* ---------------------------------------------------APPLE------------------------------------------------*/
+      // /* ---------------------------------------------------APPLE------------------------------------------------*/
+      // let appleBtn = document.getElementById("appleBtn");
+      // let appleChartContainer = document.getElementById("appleDiv");
+      // appleBtn.addEventListener("click", () => {
+      //   if (appleChartContainer.style.display === "none") {
+      //     appleChartContainer.style.display = "block";
+      //   } else {
+      //     appleChartContainer.style.display = "none";
+      //   }
+      // });
 
-        let myChart = new Chart(googleChart, {
-          type: "line",
-          data: {
-            labels: formattedData.x,
-            datasets: [
-              {
-                label: "GOOGLE STOCK",
-                data: formattedData.y,
-                borderColor: "red",
-              },
-            ],
-          },
+      // async function aChart() {
+      //   const formattedData = await getStockDataForStockCode("AAPL");
 
-          options: {},
-        });
-      }
-      /* ---------------------------------------------------APPLE------------------------------------------------*/
-      /* ---------------------------------------------------APPLE------------------------------------------------*/
-      let appleBtn = document.getElementById("appleBtn");
-      let appleChartContainer = document.getElementById("appleDiv");
-      appleBtn.addEventListener("click", () => {
-        if (appleChartContainer.style.display === "none") {
-          appleChartContainer.style.display = "block";
-        } else {
-          appleChartContainer.style.display = "none";
-        }
-      });
+      //   let googleChart = document
+      //     .getElementById("appleChart")
+      //     .getContext("2d");
 
-      async function aChart() {
-        const formattedData = await getStockDataForStockCode('AAPL');
+      //   console.log("APPLE After Reverse", formattedData);
 
-        let googleChart = document
-          .getElementById("appleChart")
-          .getContext("2d");
+      //   let myChart = new Chart(appleChart, {
+      //     type: "line",
+      //     data: {
+      //       labels: formattedData.x,
+      //       datasets: [
+      //         {
+      //           label: "APPLE STOCK",
+      //           data: formattedData.y,
+      //           borderColor: "blue",
+      //         },
+      //       ],
+      //     },
 
-        console.log('APPLE After Reverse', formattedData)
+      //     options: {},
+      //   });
+      // }
 
-        let myChart = new Chart(appleChart, {
-          type: "line",
-          data: {
-            labels: formattedData.x,
-            datasets: [
-              {
-                label: "APPLE STOCK",
-                data: formattedData.y,
-                borderColor: "blue",
-              },
-            ],
-          },
+      // /*---------------------------------------------------------TESLA-----------------------------------------------*/
+      // /*---------------------------------------------------------TESLA-----------------------------------------------*/
+      // let teslaBtn = document.getElementById("teslaBtn");
+      // let teslaChartContainer = document.getElementById("teslaDiv");
+      // teslaBtn.addEventListener("click", () => {
+      //   if (teslaChartContainer.style.display === "none") {
+      //     teslaChartContainer.style.display = "block";
+      //   } else {
+      //     teslaChartContainer.style.display = "none";
+      //   }
+      // });
 
-          options: {},
-        });
-      }
+      // async function tChart() {
+      //   const formattedData = await getStockDataForStockCode("TSLA");
 
-      /*---------------------------------------------------------TESLA-----------------------------------------------*/
-      /*---------------------------------------------------------TESLA-----------------------------------------------*/
-      let teslaBtn = document.getElementById("teslaBtn");
-      let teslaChartContainer = document.getElementById("teslaDiv");
-      teslaBtn.addEventListener("click", () => {
-        if (teslaChartContainer.style.display === "none") {
-          teslaChartContainer.style.display = "block";
-        } else {
-          teslaChartContainer.style.display = "none";
-        }
-      });
+      //   let googleChart = document
+      //     .getElementById("teslaChart")
+      //     .getContext("2d");
 
-      async function tChart() {
-        const formattedData = await getStockDataForStockCode('TSLA');
+      //   console.log("TESLA After Reverse", formattedData);
 
-        let googleChart = document
-          .getElementById("teslaChart")
-          .getContext("2d");
+      //   let myChart = new Chart(teslaChart, {
+      //     type: "line",
+      //     data: {
+      //       labels: formattedData.x,
+      //       datasets: [
+      //         {
+      //           label: "TESLA STOCK",
+      //           data: formattedData.y,
+      //           borderColor: "green",
+      //         },
+      //       ],
+      //     },
 
-        console.log('TESLA After Reverse', formattedData)
+      //     options: {},
+      //   });
+      // }
+      // /*-----------------------------------------------------MICROSOFT--------------------------------------------*/
+      // /*-----------------------------------------------------MICROSOFT--------------------------------------------*/
+      // let microBtn = document.getElementById("microBtn");
+      // let microChartContainer = document.getElementById("microsoftDiv");
+      // microBtn.addEventListener("click", () => {
+      //   if (microChartContainer.style.display === "none") {
+      //     microChartContainer.style.display = "block";
+      //   } else {
+      //     microChartContainer.style.display = "none";
+      //   }
+      // });
 
-        let myChart = new Chart(teslaChart, {
-          type: "line",
-          data: {
-            labels: formattedData.x,
-            datasets: [
-              {
-                label: "TESLA STOCK",
-                data: formattedData.y,
-                borderColor: "green",
-              },
-            ],
-          },
+      // async function mChart() {
+      //   const formattedData = await getStockDataForStockCode("MSFT");
 
-          options: {},
-        });
-      }
+      //   let microChart = document.getElementById("microChart").getContext("2d");
 
-      function start() {
-        gChart();
-        aChart();
-        tChart();
-      }
+      //   let myChart = new Chart(microChart, {
+      //     type: "line",
+      //     data: {
+      //       labels: formattedData.x,
+      //       datasets: [
+      //         {
+      //           label: "MICROSOFT STOCK",
+      //           data: formattedData.y,
+      //           borderColor: "purple",
+      //         },
+      //       ],
+      //     },
 
-      start();
+      //     options: {},
+      //   });
+      // }
+
+      // function start() {
+      //   gChart();
+      //   aChart();
+      //   tChart();
+      //   mChart();
+      // }
+
+      // start();
     </script>
   </body>
 </html>
